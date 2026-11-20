@@ -62,6 +62,12 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - **UI approach:** third model bank on long-press of the model button (grounded models → bonus
   models → Schliere, LED 2 hard-blinking), per `ANLEITUNG.md` 5.4 — not an options menu.
   Frequency locking brings its own both-buttons toggle from lylepmills (user, Q12).
+- **Calibration entry (user, 2026-11-20):** both buttons held **6 s** (stock: any press of both
+  buttons); short press of both = no-op; 0.2–6 s = frequency-locking toggle. Single-button long
+  presses stay at 3 s.
+- **Frequency knob alt (user, 2026-11-20):** octave snapping relative to the locked pitch (knob
+  keeps its 12-semitones-per-20 % scale, snaps to whole octaves, hysteresis) — not lylepmills'
+  absolute 7-step switch, not a pickup mode.
 - **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
   (`stm_audio_bootloader/qpsk/encoder.py`) gets ported to Python 3 as a uv tool in this
   workbench, verified against official WAVs (user, Q13). SWD is fallback/rollback — **revised
@@ -157,8 +163,9 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
 - **Stock firmware build reproduced [measured]** with Arm GNU 12.2 and the `gnu++11` flag
   override, zero source changes: `rings.bin` 84 016 bytes, artifact + SHA in
   `firmware/builds/rings-stock-f4cfa769/`. Not yet flashed to hardware.
-- Next: Smear→Rings mapping design round (proposal doc), WAV encoder py3 port, port patches
-  (frequency locking, knob alt, Schliere).
+- **Frequency locking committed** in eurorack-mi-sgnir (`07283e3`, `ebb93b9`, docs `60df4f6`),
+  builds with Arm GNU 12.2 (84 880 B). Not flashed. User-facing controls: sgnir README.
+- Next: frequency knob alt (octave snapping), then Schliere.
 
 ## Skills (project-local, `.claude/skills/`)
 

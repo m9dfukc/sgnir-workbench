@@ -13,8 +13,10 @@
   RESET/SYSBOOT buttons): read-only flash dump as the test.
 
 ### Firmware work (in `firmware/eurorack-mi-sgnir`)
-- Port **frequency locking** from the lylepmills master diff (~150 lines / 7 files, drop the
-  MiniElements() guard), then **frequency knob alt** (~10 lines). Chord tables later, optional.
+- **Frequency knob alt** (own commit): while locked, the FREQUENCY knob snaps to whole octaves
+  of the locked pitch, `offset = 12 * round((pot_transpose - locked_transpose) / 12)` with
+  ±0.1 octave hysteresis — no jump at lock time, no pickup (user, 2026-11-20; replaces lylepmills'
+  absolute 7-step switch). Chord tables later, optional.
 - Implement **Schliere** (variant S first, one class with variant switches; ANLEITUNG.md 4–5):
   replace `tanhf` with stmlib `SoftClip`, port host tests, profile with DWT cycle counter
   (budget 84 000 cycles/block, target < 80 %). Control mapping decided 2026-11-20 (see
@@ -29,9 +31,20 @@
 ### Port details ([open] items from ANLEITUNG.md)
 - Rings input/output voltage ranges; DC coupling of the input.
 - `pitch_offset` zero point for the continuous 10-octave frequency knob.
-- Settings `State` padding: verify it is zeroed in stock-firmware saves.
+- ~~Settings `State` padding: verify it is zeroed in stock-firmware saves.~~ Moot: the sgnir
+  extension fields sit behind an `'SGN1'` marker and are initialized when it is missing
+  [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-20: **Frequency locking** in eurorack-mi-sgnir (`07283e3`), behavior from lylepmills
+  `0390557b34`, reimplemented on upstream (his diff is entangled with options menu/Mini-Elements).
+  Toggle: both buttons >0.2 s, LEDs red = will lock / green = will unlock, toggles on release.
+  **Calibration now needs both buttons held 6 s** (stock: any press of both; user decision);
+  short press of both = no-op. Settings extension in the former `State` padding behind an
+  `'SGN1'` marker, `SettingsData` stays 60 bytes (static_assert) so stock calibration survives
+  [code]. Plus `ebb93b9`: CV offsets captured during calibration are applied only when C3
+  succeeds (stock persisted them on the next button press after a failed calibration).
+  User docs in the sgnir README (`60df4f6`). Build 84 880 B, Arm GNU 12.2. Not flashed.
 - 2026-11-20: **WAV encoder ported to Python 3** (`tools/`, uv project `sgnir-tools`:
   `qpsk-encode` + verification decoder `qpsk-decode`) and **verified against the official
   Rings 1.1 WAV [measured]**: payload extracted with 0 CRC failures, re-encode structurally
