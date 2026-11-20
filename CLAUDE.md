@@ -25,8 +25,11 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - Controls: 5 knobs, attenuverters, CV inputs + V/OCT + STRUM, 2 buttons, 2 bicolor LEDs
   [code: see `reference/schliere-owl/ANLEITUNG.md` section 2].
 - Firmware update path: **audio bootloader** (official firmware ships as a WAV played into the
-  input). SWD via a cheap ST-Link as the fallback/rollback path — not yet bought
-  (research: `docs/research/notes/stlink-options-2026-11-20.md`).
+  input). SWD fallback: one of the user's **RP2040 boards with the raspberrypi/debugprobe
+  firmware** (CMSIS-DAP + UART bridge) — only a 2x5 1.27 mm Cortex-Debug adapter set needs to
+  be ordered for JP1. Second recovery path with zero purchases: JP2 is a plain 2.54 mm 1x6
+  header [code: `rings_v30.brd`, package `1X06`] → ROM serial bootloader via any 3.3 V UART +
+  RESET/SYSBOOT buttons (research: `docs/research/notes/stlink-options-2026-11-20.md`).
 - V/OCT is calibrated in the stock firmware; calibration data lives in flash settings.
   Whether a firmware update preserves calibration/settings is **[open]** — clarify before the
   first flash.
@@ -60,9 +63,11 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
   Frequency locking brings its own both-buttons toggle from lylepmills (user, Q12).
 - **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
   (`stm_audio_bootloader/qpsk/encoder.py`) gets ported to Python 3 as a uv tool in this
-  workbench, verified against official WAVs (user, Q13). SWD (cheap ST-Link V2 clone +
-  1.27 mm adapter, to be ordered) is fallback/rollback; Rings also has a serial-bootloader
-  header JP2 + RESET/SYSBOOT buttons as a second recovery path (see ST-Link research note).
+  workbench, verified against official WAVs (user, Q13). SWD is fallback/rollback — **revised
+  2026-11-20 (user): no ST-Link purchase; an RP2040 board with the debugprobe firmware is the
+  probe**, only the 2x5 1.27 mm adapter set gets ordered. Rings' serial-bootloader header JP2
+  (2.54 mm, jumper-wire friendly) + RESET/SYSBOOT buttons are the second recovery path and
+  work with hardware on hand (see ST-Link research note).
 - **Sample rate:** target 48 kHz for Schliere; the 32 kHz fallback only after profiling shows
   it is needed, and only with the user's sign-off (user, Q14).
 - **Smear→Rings control mapping:** still open — dedicated design round; a mapping proposal

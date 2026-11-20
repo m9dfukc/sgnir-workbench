@@ -6,9 +6,14 @@
 - **Smear→Rings control mapping**: dedicated design round; Claude drafts a mapping proposal
   comparing the Smear feature set with Rings' controls (`ANLEITUNG.md` 5.3 is the starting
   point). Then: variant switches (A/O later), output routing, STRUM function.
-- **ST-Link order** (user): ST-Link V2 clone + 2x5 1.27 mm Cortex-Debug adapter set
-  (+ optional 3.3 V USB-UART as serial-bootloader fallback). Links and wiring:
-  `docs/research/notes/stlink-options-2026-11-20.md`.
+- **Order** (user): only the 2x5 1.27 mm Cortex-Debug adapter set (board + 1.27 mm IDC ribbon,
+  ~5–10 €, amazon.de "JTAG SWD Adapter 1.27mm 10 Pin"). No ST-Link — an RP2040 board with the
+  raspberrypi/debugprobe firmware is the SWD probe (decision 2026-11-20).
+- Flash the debugprobe UF2 onto an RP2040 board; verify the SWD/UART pin mapping against the
+  debugprobe README [hypothesis: GP2 SWCLK, GP3 SWDIO, GP4/GP5 UART] and test OpenOCD
+  (`interface/cmsis-dap.cfg`) against some expendable target before touching Rings.
+- Prove the JP2 serial-bootloader path (2.54 mm 1x6 header, jumper wires + 3.3 V UART,
+  RESET/SYSBOOT buttons): read-only flash dump as the test.
 
 ### Firmware work (in `firmware/eurorack-mi-sgnir`)
 - Port the firmware-WAV encoder (`stm_audio_bootloader/qpsk/encoder.py`, Python 2) to

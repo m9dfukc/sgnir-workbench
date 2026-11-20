@@ -161,3 +161,22 @@ the STM32 ROM serial bootloader with zero SWD hardware [sourced, open_source.md 
 - https://www.reichelt.de/de/de/shop/suche/stlink-v3minie (STLINK-V3MINIE 31,60 €, in stock)
 - https://github.com/TOILmodular/Rings (DIY clone, JTAG/UART programming notes)
 - Unreachable today: st.com STLINK-V3MINIE product page and mouser.de (timeouts); forum.mutable-instruments.net (DNS gone)
+
+---
+
+## Addendum (2026-11-20, later): RP2040 as probe, JP2 pitch verified
+
+- Decision (user): **no ST-Link purchase.** One of the user's RP2040 boards, flashed with the
+  official **raspberrypi/debugprobe** firmware (https://github.com/raspberrypi/debugprobe,
+  formerly picoprobe), serves as the SWD probe: CMSIS-DAP + USB-UART bridge, supported by
+  OpenOCD (`interface/cmsis-dap.cfg`) and probe-rs, 3.3 V logic [sourced: debugprobe README /
+  RPi docs for the Debug Probe, which runs the same firmware]. Default pin mapping to verify
+  before wiring: GP2 = SWCLK, GP3 = SWDIO, GP4/GP5 = UART TX/RX [hypothesis]. Like the Pi
+  Debug Probe it has no NRST line; OpenOCD resets via SWD (SYSRESETREQ).
+- Only remaining purchase: the 2x5 1.27 mm Cortex-Debug adapter set for JP1.
+- **JP2 pitch verified [code]:** in `rings_v30.brd` (binary Eagle, read via strings) JP1 has
+  package `2X5-1.27` (1.27 mm — standard jumper wires do NOT fit) and JP2 has package `1X06`,
+  the plain 2.54 mm 1x6 header — **standard jumper wires fit JP2 directly.** Together with the
+  on-board RESET and SYSBOOT (BOOT_FLASH) switches this makes the ROM serial bootloader a
+  zero-purchase recovery path (read and write, e.g. `stm32flash`), with the RP2040 usable as
+  the UART bridge.
