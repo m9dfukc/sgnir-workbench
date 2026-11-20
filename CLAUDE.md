@@ -71,8 +71,11 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
   work with hardware on hand (see ST-Link research note).
 - **Sample rate:** target 48 kHz for Schliere; the 32 kHz fallback only after profiling shows
   it is needed, and only with the user's sign-off (user, Q14).
-- **Smear→Rings control mapping:** still open — dedicated design round; a mapping proposal
-  document is the discussion basis.
+- **Smear→Rings control mapping (decided 2026-11-20, user):** per
+  `docs/smear-mapping-proposal.md` — POSITION = Spread (L/R tap distance, CCW mono → CW
+  early/tail); STRUM = Excite impulse into the chain input; excite flavor (single-sample
+  impulse vs. filtered noise burst) implemented both ways, decided by ear on hardware; left
+  button = dry/wet toggle from the start.
 
 ## Language policy (user, 2026-11-20)
 

@@ -3,9 +3,6 @@
 ## Open
 
 ### Design (need the user)
-- **Smear→Rings control mapping**: dedicated design round; Claude drafts a mapping proposal
-  comparing the Smear feature set with Rings' controls (`ANLEITUNG.md` 5.3 is the starting
-  point). Then: variant switches (A/O later), output routing, STRUM function.
 - **Order** (user): only the 2x5 1.27 mm Cortex-Debug adapter set (board + 1.27 mm IDC ribbon,
   ~5–10 €, amazon.de "JTAG SWD Adapter 1.27mm 10 Pin"). No ST-Link — an RP2040 board with the
   raspberrypi/debugprobe firmware is the SWD probe (decision 2026-11-20).
@@ -22,7 +19,9 @@
   MiniElements() guard), then **frequency knob alt** (~10 lines). Chord tables later, optional.
 - Implement **Schliere** (variant S first, one class with variant switches; ANLEITUNG.md 4–5):
   replace `tanhf` with stmlib `SoftClip`, port host tests, profile with DWT cycle counter
-  (budget 84 000 cycles/block, target < 80 %).
+  (budget 84 000 cycles/block, target < 80 %). Control mapping decided 2026-11-20 (see
+  CLAUDE.md / `docs/smear-mapping-proposal.md`): POSITION = Spread, STRUM = Excite (implement
+  both impulse and noise-burst flavors, pick by ear on hardware), left button = dry/wet toggle.
 
 ### Before the first flash
 - Download and archive the official Rings firmware WAV (`backup/`).
@@ -36,6 +35,9 @@
 - Settings `State` padding: verify it is zeroed in stock-firmware saves.
 
 ## Done
+- 2026-11-20: **Smear→Rings mapping decided** (user, via `docs/smear-mapping-proposal.md`):
+  POSITION = Spread, STRUM = Excite impulse (flavor by ear on hardware, both implemented),
+  left button = dry/wet toggle. Workbench published as `m9dfukc/sgnir-workbench` (public, MIT).
 - 2026-11-20: Workbench set up (CLAUDE.md rewrite, .gitignore, lexicon, README, project
   settings). Reference package copied from `_tmp/` to `reference/schliere-owl/` and verified:
   all 65 host tests pass.
