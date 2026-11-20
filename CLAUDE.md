@@ -68,12 +68,17 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - **Frequency knob alt (user, 2026-11-20):** octave snapping relative to the locked pitch (knob
   keeps its 12-semitones-per-20 % scale, snaps to whole octaves, hysteresis) — not lylepmills'
   absolute 7-step switch, not a pickup mode.
-- **Schliere controls (user, 2026-11-20):** left button = dry/wet in steps 0 / 25 / 50 / 75 /
-  100 % wet (default 100 %), shown on LED 1 for 1.5 s (off / green / yellow / red / red
-  blinking). Frequency = own continuous path over the whole knob (≈ 11 octaves) + calibrated
+- **Schliere controls (user, 2026-11-20):** left button = dry/wet in steps 100 / 75 / 50 / 25 %
+  wet (default 100 %; revised from five steps incl. 0 %), shown on LED 1 for 1.5 s as red /
+  yellow / green / off (no blinking). Full control/LED reference: sgnir README. Frequency = own continuous path over the whole knob (≈ 11 octaves) + calibrated
   V/OCT + FM; frequency locking freezes the knob, alt function = octave snapping (≈ 9 % travel
-  per octave). Right button short = excite flavor (impulse / noise burst, LED 2 green/yellow)
-  until the variant select takes it over. Excite only on a trigger at the STRUM jack.
+  per octave). Excite only on a trigger at the STRUM jack.
+- **Schliere 48 kHz vs. 96 kHz (user, 2026-11-20, after measuring on the module):** default =
+  variant S **without** its 96 kHz feedback path (81 % vs. 89 % peak load; audible difference,
+  48 kHz judged fine). Right button in the Schliere bank (user, 2026-11-20): press = excite
+  (on button down); held 1–3 s = 48/96 kHz toggle on release (LED 2 green = 96 kHz, yellow =
+  48 kHz, preview after 1 s, saved); held 3 s = bank change as before. Excite flavor on the
+  left button long press (LED 1 shows it for 1.5 s).
 - **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
   (`stm_audio_bootloader/qpsk/encoder.py`) gets ported to Python 3 as a uv tool in this
   workbench, verified against official WAVs (user, Q13). SWD is fallback/rollback — **revised
@@ -176,7 +181,15 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
   43/43, equivalence vs. the OWL reference 32/32 (`tests/schliere/`), integrated as third bank;
   firmware builds (97 056 B). CPU [hypothesis]: ≈ 25 cycles/stage → ≈ 55–60 % of the block
   budget; measure on hardware via `fill_buffer_cycles_peak` (DWT). Not flashed.
-- Next: hardware prep and first flash (stock procedure first), then tuning on the module.
+- **On the module (2026-11-20):** audio-bootloader flashing proven (stock 1.1, then sgnir
+  builds; first attempt failed when too quiet). First sgnir Schliere build overloaded the CPU
+  (105 % peak); after measurement-driven optimizations (flash prefetch, chain/tap code) 81 % at
+  48 kHz [measured, LED benchmark]; RAM execution measured 18 % slower. Details:
+  `firmware/flashlog/` (local) and the sgnir README "Profiling". Committed in sgnir as
+  `2fa5fe3` (DSP speed-up), `41db973` (prefetch, overload guard, controls), `7738d7d` (release
+  workflow: v* tag -> GitHub Actions builds, encodes the WAV, publishes a release with
+  docs/FLASHING.md); first release `v0.1.0`.
+- Next: listening/worst-case tests on the module, level adjustment, excite level by ear.
 
 ## Skills (project-local, `.claude/skills/`)
 

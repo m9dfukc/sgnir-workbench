@@ -29,5 +29,8 @@ __pycache__/
 *.pyc
 .venv/
 
+# Flash logs (local only, per CLAUDE.md)
+firmware/flashlog/
+
 # Session handoffs (local working notes)
 docs/handoffs/

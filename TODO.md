@@ -14,17 +14,23 @@
 
 ### Firmware work (in `firmware/eurorack-mi-sgnir`)
 - Chord tables from lylepmills: later, optional.
-- **Schliere on hardware** [open]: measure `fill_buffer_cycles_peak` over SWD (target < 80 % of
-  84 000 cycles); input/output levels → adjust `kOutKnee`/`kLoopKnee` (ANLEITUNG 4.4); excite
-  level (`kExciteLevel`, [hypothesis] 0.5) and flavor by ear; CV noise vs. the light CV filter
-  for tap/feedback (`kSchliereCvLpCoefficient` 0.5); LED PWM whine check (AC/DC lesson D66).
+- **Schliere on hardware** [open]: worst-case load (tap between detents, loud input, high
+  feedback/resonance; measured so far only with knobs at noon: 81 % / 89 %); input/output
+  levels → adjust `kOutKnee`/`kLoopKnee` (ANLEITUNG 4.4); excite level (`kExciteLevel`,
+  [hypothesis] 0.5) and flavor by ear; CV smoothing for tap/feedback
+  (`kSchliereCvLpCoefficient`, now 0.1 like Rings); LED PWM whine check (AC/DC lesson D66).
+- Further CPU headroom if needed (sound-neutral): smooth only the active taps, per-block
+  excite/spread/mix where nothing moves; asm stage loop would save ≈ 5 % at most.
 - Schliere variants O/A on the right button (switches exist in `Schliere::Init`), after the
   excite flavor is decided.
 
 ### Before the first flash
-- Clarify [open]: does a firmware update preserve settings/calibration?
-- Prove the audio bootloader procedure once with the stock firmware
-  (official `backup/rings_1.1.wav` is the known-good rollback).
+- Clarify [open]: does a firmware update preserve settings/calibration? [code]: yes (settings in
+  flash sector 1, bootloader erases from sector 2). Confirm with a before/after check (model,
+  polyphony, V/OCT 1 V/3 V octave test) on the next update.
+- ~~Prove the audio bootloader procedure once with the stock firmware~~ Done 2026-11-20
+  [measured]: `backup/rings_1.1.wav` flashed (second attempt; first too quiet), then several
+  sgnir builds.
 
 ### Port details ([open] items from ANLEITUNG.md)
 - Rings input/output voltage ranges; DC coupling of the input.
@@ -34,6 +40,16 @@
   [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-20: **Schliere on the module, CPU** [measured, LED benchmark builds diag1–6, logs in
+  `firmware/flashlog/` (local)]: first build 105 % peak → overload (crackle, starved UI and
+  SysTick: long press took 10 s). Fixes: flash prefetch at boot (−10 %), store only tapped
+  nodes, per-block a1/a2 ramp, folded stage update, skip settled taps, loop-invariant motion,
+  CV interpolation instead of a third halfband; overload guard leaves the bank after 0.2 s over
+  budget. Now 81 % (48 kHz) / 89 % (96 kHz), grounded models 43 %, base 13 %. RAM execution
+  18 % slower (S-bus contention), dropped. 48 kHz default (user). Only-ODD = hardware mix of
+  ODD+EVEN [sourced: manual] → comb notches; Spread CCW = mono. Committed as sgnir `2fa5fe3`,
+  `41db973`; release pipeline `7738d7d` (GitHub Actions on v* tags, WAV + bin + flashing guide),
+  first release `v0.1.0`.
 - 2026-11-20: **Schliere S** in eurorack-mi-sgnir (`1904959`, `81fe986`):
   `rings/dsp/schliere.{h,cc}` — one class with the variant switches S/O/Z/W/A, `SoftClip`
   knees, CVs per block (ramped), no dead zone, plus spread (POSITION, hold zones at mono /
