@@ -188,7 +188,12 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
   `firmware/flashlog/` (local) and the sgnir README "Profiling". Committed in sgnir as
   `2fa5fe3` (DSP speed-up), `41db973` (prefetch, overload guard, controls), `7738d7d` (release
   workflow: v* tag -> GitHub Actions builds, encodes the WAV, publishes a release with
-  docs/FLASHING.md); first release `v0.1.0`.
+  docs/FLASHING.md); fixes `bbff5c9` (GCC -Wcomment in the host test), `e832c6b` (touch the
+  checked-in resources: a fresh clone made make regenerate them with the Python 2 compiler),
+  `ec4a7aa` (ELF/map artifact). **Release `v0.1.0` published** (tag on `ec4a7aa`):
+  https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.1.0. The CI (Linux) binary
+  differs from the local macOS build only in the placement of libm constant tables; all 190
+  functions have identical code [measured: normalized disassembly of both ELFs].
 - Next: listening/worst-case tests on the module, level adjustment, excite level by ear.
 
 ## Skills (project-local, `.claude/skills/`)
