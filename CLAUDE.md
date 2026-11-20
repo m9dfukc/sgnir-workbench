@@ -36,8 +36,9 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 
 ## Decisions (user, 2026-11-20)
 
-- **Two-level structure:** this directory is the workbench (local git repo, not published for
-  now). The firmware fork is a separate GitHub repo **`m9dfukc/eurorack-mi-sgnir`**, embedded
+- **Two-level structure:** this directory is the workbench, public as
+  **`m9dfukc/sgnir-workbench`** (user, 2026-11-20; remote `origin`, branch `main`, MIT).
+  The firmware fork is a separate GitHub repo **`m9dfukc/eurorack-mi-sgnir`**, embedded
   here as a git submodule under `firmware/` (once created). Mutable Instruments asked forks not
   to reuse the original names — hence "sgnir"; folder names inside the repo (`rings/`, …) stay
   as upstream.
@@ -117,6 +118,7 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 | `reference/acdc-workbench-CLAUDE.md` | Snapshot of the origin project's CLAUDE.md, for "what did we do there" lookups |
 | `firmware/eurorack-mi-sgnir/` | Submodule: the firmware repo (https://github.com/m9dfukc/eurorack-mi-sgnir, fetch https, push ssh). Build docs in its README |
 | `firmware/builds/`, `firmware/flashlog/` | Build artifacts and flash logs, local only (gitignored). `rings-stock-f4cfa769/` = verified stock build |
+| `docs/handoffs/` | Session handoffs — **local only, gitignored, never commit**. Working notes that go stale fast; the newest file is the current one, never delete. CLAUDE.md and TODO.md must not reference individual handoff files — anything durable belongs in TODO.md, CLAUDE.md, or the docs |
 | `backup/` | Device backups (firmware WAVs, calibration) — local only, never overwrite |
 | `_tmp/` | User's scratch space. Ignored by git, never delete |
 
