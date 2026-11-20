@@ -16,7 +16,11 @@
       "Bash(gh release list*)",
       "Bash(uv run *)",
       "Bash(uv add *)",
-      "Bash(uv sync*)"
+      "Bash(uv sync*)",
+      "Skill(grill-me)",
+      "Skill(grilling)",
+      "Skill(handoff)",
+      "Skill(research)"
     ],
     "ask": [
       "Bash(git push*)",
