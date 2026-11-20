@@ -1,0 +1,3 @@
+[submodule "firmware/eurorack-mi-sgnir"]
+	path = firmware/eurorack-mi-sgnir
+	url = https://github.com/m9dfukc/eurorack-mi-sgnir.git

@@ -49,10 +49,24 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
   acdc-workbench.
 - **Port scope:** variant **S** first, implemented as one class with the variant switches from
   `ANLEITUNG.md` section 4.2, so A and O become pure configuration later. M (morph) is dropped.
-- **Still open** (decide after the fork research lands): fork base (upstream + cherry-picked
-  lylepmills patches vs. a lylepmills branch), UI approach (third model bank on long-press vs.
-  lylepmills-style options menu), and the Smear→Rings control mapping. These get a dedicated
-  design round; a mapping proposal document is the discussion basis.
+- **Fork base (decided 2026-11-20, after research):** upstream `pichenettes/eurorack` master
+  (`f4cfa769`, rings tip `c5f910fb25`), stmlib `e3bd7c9c`, stm-audio-bootloader `1ec7d637` —
+  NOT a lylepmills branch (his rings/ bundles unwanted features: Mini-Elements, 32 kHz, no CV
+  slew). The lylepmills features are ported from the master *diff* (history contains reverts, so
+  no cherry-picks). Details: `docs/research/notes/rings-forks-2026-11-20.md`.
+- **Chord tables:** later, as an optional patch after the core features work (user, Q11).
+- **UI approach:** third model bank on long-press of the model button (grounded models → bonus
+  models → Schliere, LED 2 hard-blinking), per `ANLEITUNG.md` 5.4 — not an options menu.
+  Frequency locking brings its own both-buttons toggle from lylepmills (user, Q12).
+- **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
+  (`stm_audio_bootloader/qpsk/encoder.py`) gets ported to Python 3 as a uv tool in this
+  workbench, verified against official WAVs (user, Q13). SWD (cheap ST-Link V2 clone +
+  1.27 mm adapter, to be ordered) is fallback/rollback; Rings also has a serial-bootloader
+  header JP2 + RESET/SYSBOOT buttons as a second recovery path (see ST-Link research note).
+- **Sample rate:** target 48 kHz for Schliere; the 32 kHz fallback only after profiling shows
+  it is needed, and only with the user's sign-off (user, Q14).
+- **Smear→Rings control mapping:** still open — dedicated design round; a mapping proposal
+  document is the discussion basis.
 
 ## Language policy (user, 2026-11-20)
 
@@ -93,10 +107,11 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 | `README.md` | Overview for outsiders (English) |
 | `CLAUDE.md` | This file |
 | `docs/lexicon.md` | German↔English term mapping |
-| `docs/research/notes/` | Research reports with all URLs/hashes (rea review, Rings forks, ST-Link options). Search here before researching anew |
+| `docs/research/notes/` | Research reports with all URLs/hashes (Rings forks, ST-Link options). Search here before researching anew |
 | `reference/schliere-owl/` | The port package from acdc-workbench (German, imported as-is): OWL sources of all six Schliere variants, `ANLEITUNG.md` (the port guide — read it before touching DSP), host tests. Do not edit; the port adapts *copies* in the firmware repo |
 | `reference/acdc-workbench-CLAUDE.md` | Snapshot of the origin project's CLAUDE.md, for "what did we do there" lookups |
-| `firmware/` | Planned: `eurorack-mi-sgnir` submodule, `builds/`, `flashlog/` |
+| `firmware/eurorack-mi-sgnir/` | Submodule: the firmware repo (https://github.com/m9dfukc/eurorack-mi-sgnir, fetch https, push ssh). Build docs in its README |
+| `firmware/builds/`, `firmware/flashlog/` | Build artifacts and flash logs, local only (gitignored). `rings-stock-f4cfa769/` = verified stock build |
 | `backup/` | Device backups (firmware WAVs, calibration) — local only, never overwrite |
 | `_tmp/` | User's scratch space. Ignored by git, never delete |
 
@@ -125,12 +140,15 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
 
 ## Status (2026-11-20)
 
-- Workbench set up: reference package copied out of `_tmp/` and verified (all 65 host tests
-  pass), research notes folder populated.
-- rea review done: nothing to adopt (`docs/research/notes/rea-review-2026-11-20.md`).
-- Rings fork research and ST-Link research running / see notes folder.
-- GitHub repo `eurorack-mi-sgnir` **not yet created** — waiting for the fork-base decision.
-  `gh` token needs a refresh by the user (`gh auth refresh -h github.com`).
+- Workbench set up: reference package verified (all 65 host tests pass), fork and ST-Link
+  research done (see notes folder), project settings in `.claude/settings.json`.
+- **`eurorack-mi-sgnir` created and pushed** (public, MIT): pristine upstream snapshot
+  (`d030009`) + meta commit (`1d6bea5`), embedded as submodule `firmware/eurorack-mi-sgnir`.
+- **Stock firmware build reproduced [measured]** with Arm GNU 12.2 and the `gnu++11` flag
+  override, zero source changes: `rings.bin` 84 016 bytes, artifact + SHA in
+  `firmware/builds/rings-stock-f4cfa769/`. Not yet flashed to hardware.
+- Next: Smear→Rings mapping design round (proposal doc), WAV encoder py3 port, port patches
+  (frequency locking, knob alt, Schliere).
 
 ## Skills (project-local, `.claude/skills/`)
 

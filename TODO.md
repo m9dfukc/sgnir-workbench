@@ -2,42 +2,46 @@
 
 ## Open
 
-### Decisions (need the user)
-- **Fork base**: upstream `pichenettes/eurorack` + cherry-picked lylepmills patches, or a
-  lylepmills branch — decide once `docs/research/notes/rings-forks-2026-11-20.md` is complete.
-- **UI approach**: third model bank on long-press (ANLEITUNG 5.4) vs. lylepmills-style options
-  menu. Depends on fork research.
-- **Smear→Rings mapping**: dedicated design round; Claude drafts a mapping proposal comparing
-  the Smear feature set with Rings' controls (ANLEITUNG 5.3 is the starting point).
-- **ST-Link purchase**: pick a model once `docs/research/notes/stlink-options-2026-11-20.md`
-  is in.
+### Design (need the user)
+- **Smear→Rings control mapping**: dedicated design round; Claude drafts a mapping proposal
+  comparing the Smear feature set with Rings' controls (`ANLEITUNG.md` 5.3 is the starting
+  point). Then: variant switches (A/O later), output routing, STRUM function.
+- **ST-Link order** (user): ST-Link V2 clone + 2x5 1.27 mm Cortex-Debug adapter set
+  (+ optional 3.3 V USB-UART as serial-bootloader fallback). Links and wiring:
+  `docs/research/notes/stlink-options-2026-11-20.md`.
 
-### Setup
-- `gh` auth is broken (invalid token in keyring). User runs: `gh auth refresh -h github.com`.
-- Create GitHub repo `m9dfukc/eurorack-mi-sgnir` (after the fork-base decision): snapshot of
-  `rings/`, `stmlib/`, `stm_audio_bootloader/` + build files at a pinned upstream commit,
-  MIT license, credits (Mutable Instruments, lylepmills, acdc-workbench). Then add it here as
-  submodule `firmware/`.
-- Reproduce the stock Rings firmware build with Arm GNU 12.2; keep the artifact; commit each
-  toolchain fix separately.
+### Firmware work (in `firmware/eurorack-mi-sgnir`)
+- Port the firmware-WAV encoder (`stm_audio_bootloader/qpsk/encoder.py`, Python 2) to
+  Python 3 as a uv tool in this workbench; verify against an official Rings release WAV.
+- Port **frequency locking** from the lylepmills master diff (~150 lines / 7 files, drop the
+  MiniElements() guard), then **frequency knob alt** (~10 lines). Chord tables later, optional.
+- Implement **Schliere** (variant S first, one class with variant switches; ANLEITUNG.md 4–5):
+  replace `tanhf` with stmlib `SoftClip`, port host tests, profile with DWT cycle counter
+  (budget 84 000 cycles/block, target < 80 %).
 
 ### Before the first flash
 - Download and archive the official Rings firmware WAV (`backup/`).
-- Clarify [open]: does a firmware update preserve settings/calibration? How is the update WAV
-  produced from a build (`rings/makefile`, stm_audio_bootloader)?
+- Clarify [open]: does a firmware update preserve settings/calibration? How does
+  `rings/makefile` produce the update WAV?
 - Prove the audio bootloader procedure once with the stock firmware.
 
-### Port (from ANLEITUNG.md, [open] items)
+### Port details ([open] items from ANLEITUNG.md)
 - Rings input/output voltage ranges; DC coupling of the input.
 - `pitch_offset` zero point for the continuous 10-octave frequency knob.
 - Settings `State` padding: verify it is zeroed in stock-firmware saves.
-- Replace `tanhf` with `stmlib` `SoftClip` and widen host-test tolerances accordingly.
-- CPU budget: profile `FillBuffer()` via DWT cycle counter; target < 80 % of 84 000 cycles/block.
 
 ## Done
-- 2026-11-20: Workbench set up (CLAUDE.md rewrite, .gitignore, lexicon, README). Reference
-  package copied from `_tmp/` to `reference/schliere-owl/` and verified: all 65 host tests pass.
-- 2026-11-20: morluto/rea reviewed — nothing to adopt
-  (`docs/research/notes/rea-review-2026-11-20.md`).
-- 2026-11-20: Decisions taken (user): two-level repo structure, snapshot fork, vendored
-  stmlib/bootloader, public + MIT, English artifacts, port scope S-first (M dropped).
+- 2026-11-20: Workbench set up (CLAUDE.md rewrite, .gitignore, lexicon, README, project
+  settings). Reference package copied from `_tmp/` to `reference/schliere-owl/` and verified:
+  all 65 host tests pass.
+- 2026-11-20: Decisions (user): two-level repo structure, snapshot fork from upstream master,
+  vendored stmlib/bootloader, public + MIT, English artifacts, Schliere scope S-first
+  (M dropped), chord tables later, UI = third bank on long-press, WAV encoder → py3,
+  48 kHz target (32 kHz only after measurement + sign-off), buy ST-Link V2 clone + adapter.
+- 2026-11-20: Research: Rings forks (`docs/research/notes/rings-forks-2026-11-20.md`,
+  recommendation upstream + lylepmills patches) and ST-Link options
+  (`docs/research/notes/stlink-options-2026-11-20.md`).
+- 2026-11-20: **eurorack-mi-sgnir created** (https://github.com/m9dfukc/eurorack-mi-sgnir,
+  public, MIT): pristine snapshot `d030009` + meta `1d6bea5`, submodule at
+  `firmware/eurorack-mi-sgnir`. Stock build reproduced with Arm GNU 12.2
+  (`firmware/builds/rings-stock-f4cfa769/`, rings.bin 84 016 B). Not flashed.

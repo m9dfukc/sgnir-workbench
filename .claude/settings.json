@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git add *)",
+      "Bash(git restore --staged *)",
+      "Bash(git submodule status*)",
+      "Bash(git commit*)",
+      "Bash(gh auth status*)",
+      "Bash(gh repo view*)",
+      "Bash(gh release view*)",
+      "Bash(gh release list*)",
+      "Bash(uv run *)",
+      "Bash(uv add *)",
+      "Bash(uv sync*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(gh repo create*)",
+      "Bash(gh release create*)"
+    ]
+  },
+  "sandbox": {
+    "excludedCommands": [
+      "git *",
+      "gh *"
+    ],
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "codeload.github.com",
+        "uploads.github.com",
+        "*.githubusercontent.com",
+        "pypi.org",
+        "files.pythonhosted.org",
+        "astral.sh"
+      ]
+    }
+  }
+}
