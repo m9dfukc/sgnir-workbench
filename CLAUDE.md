@@ -165,7 +165,8 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
   `firmware/builds/rings-stock-f4cfa769/`. Not yet flashed to hardware.
 - **Frequency locking committed** in eurorack-mi-sgnir (`07283e3`, `ebb93b9`, docs `60df4f6`),
   builds with Arm GNU 12.2 (84 880 B). Not flashed. User-facing controls: sgnir README.
-- Next: frequency knob alt (octave snapping), then Schliere.
+- **Frequency knob alt committed** (`68906da`, octave snapping), build 85 104 B. Not flashed.
+- Next: Schliere.
 
 ## Skills (project-local, `.claude/skills/`)
 

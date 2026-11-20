@@ -13,10 +13,7 @@
   RESET/SYSBOOT buttons): read-only flash dump as the test.
 
 ### Firmware work (in `firmware/eurorack-mi-sgnir`)
-- **Frequency knob alt** (own commit): while locked, the FREQUENCY knob snaps to whole octaves
-  of the locked pitch, `offset = 12 * round((pot_transpose - locked_transpose) / 12)` with
-  ±0.1 octave hysteresis — no jump at lock time, no pickup (user, 2026-11-20; replaces lylepmills'
-  absolute 7-step switch). Chord tables later, optional.
+- Chord tables from lylepmills: later, optional.
 - Implement **Schliere** (variant S first, one class with variant switches; ANLEITUNG.md 4–5):
   replace `tanhf` with stmlib `SoftClip`, port host tests, profile with DWT cycle counter
   (budget 84 000 cycles/block, target < 80 %). Control mapping decided 2026-11-20 (see
@@ -36,6 +33,12 @@
   [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-20: **Frequency knob alt** in eurorack-mi-sgnir (`68906da`): while locked, the
+  FREQUENCY knob snaps to whole octaves of the locked pitch,
+  `offset = 12 * round((pot_transpose - locked_transpose) / 12)` with ±0.1 octave hysteresis —
+  no jump at lock time, no pickup; result stays within ±6 semitones of the knob's own range.
+  Host check of the formula: switch points ±6 st ± 1.2 st hysteresis, no flapping under ±0.9 st
+  jitter [code]. Build 85 104 B. Not flashed.
 - 2026-11-20: **Frequency locking** in eurorack-mi-sgnir (`07283e3`), behavior from lylepmills
   `0390557b34`, reimplemented on upstream (his diff is entangled with options menu/Mini-Elements).
   Toggle: both buttons >0.2 s, LEDs red = will lock / green = will unlock, toggles on release.
