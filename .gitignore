@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/.cc-writes
+
+# User scratch space — never tracked, never deleted
+_tmp/
+
+# Local-only data: device backups (firmware WAVs, calibration dumps)
+backup/
+
+# Build outputs and analysis artifacts
+out/
+build/
+builds/
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.wav
+*.syx
+
+# Python / uv
+.uv-cache/
+__pycache__/
+*.pyc
+.venv/
+
+# Session handoffs (local working notes)
+docs/handoffs/
