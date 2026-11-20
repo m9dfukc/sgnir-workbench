@@ -68,6 +68,12 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - **Frequency knob alt (user, 2026-11-20):** octave snapping relative to the locked pitch (knob
   keeps its 12-semitones-per-20 % scale, snaps to whole octaves, hysteresis) — not lylepmills'
   absolute 7-step switch, not a pickup mode.
+- **Schliere controls (user, 2026-11-20):** left button = dry/wet in steps 0 / 25 / 50 / 75 /
+  100 % wet (default 100 %), shown on LED 1 for 1.5 s (off / green / yellow / red / red
+  blinking). Frequency = own continuous path over the whole knob (≈ 11 octaves) + calibrated
+  V/OCT + FM; frequency locking freezes the knob, alt function = octave snapping (≈ 9 % travel
+  per octave). Right button short = excite flavor (impulse / noise burst, LED 2 green/yellow)
+  until the variant select takes it over. Excite only on a trigger at the STRUM jack.
 - **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
   (`stm_audio_bootloader/qpsk/encoder.py`) gets ported to Python 3 as a uv tool in this
   workbench, verified against official WAVs (user, Q13). SWD is fallback/rollback — **revised
@@ -166,7 +172,11 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
 - **Frequency locking committed** in eurorack-mi-sgnir (`07283e3`, `ebb93b9`, docs `60df4f6`),
   builds with Arm GNU 12.2 (84 880 B). Not flashed. User-facing controls: sgnir README.
 - **Frequency knob alt committed** (`68906da`, octave snapping), build 85 104 B. Not flashed.
-- Next: Schliere.
+- **Schliere S committed** (`1904959` DSP + tests, `81fe986` integration): `rings/dsp/schliere.*`, host tests
+  43/43, equivalence vs. the OWL reference 32/32 (`tests/schliere/`), integrated as third bank;
+  firmware builds (97 056 B). CPU [hypothesis]: ≈ 25 cycles/stage → ≈ 55–60 % of the block
+  budget; measure on hardware via `fill_buffer_cycles_peak` (DWT). Not flashed.
+- Next: hardware prep and first flash (stock procedure first), then tuning on the module.
 
 ## Skills (project-local, `.claude/skills/`)
 

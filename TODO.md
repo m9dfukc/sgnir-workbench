@@ -14,11 +14,12 @@
 
 ### Firmware work (in `firmware/eurorack-mi-sgnir`)
 - Chord tables from lylepmills: later, optional.
-- Implement **Schliere** (variant S first, one class with variant switches; ANLEITUNG.md 4–5):
-  replace `tanhf` with stmlib `SoftClip`, port host tests, profile with DWT cycle counter
-  (budget 84 000 cycles/block, target < 80 %). Control mapping decided 2026-11-20 (see
-  CLAUDE.md / `docs/smear-mapping-proposal.md`): POSITION = Spread, STRUM = Excite (implement
-  both impulse and noise-burst flavors, pick by ear on hardware), left button = dry/wet toggle.
+- **Schliere on hardware** [open]: measure `fill_buffer_cycles_peak` over SWD (target < 80 % of
+  84 000 cycles); input/output levels → adjust `kOutKnee`/`kLoopKnee` (ANLEITUNG 4.4); excite
+  level (`kExciteLevel`, [hypothesis] 0.5) and flavor by ear; CV noise vs. the light CV filter
+  for tap/feedback (`kSchliereCvLpCoefficient` 0.5); LED PWM whine check (AC/DC lesson D66).
+- Schliere variants O/A on the right button (switches exist in `Schliere::Init`), after the
+  excite flavor is decided.
 
 ### Before the first flash
 - Clarify [open]: does a firmware update preserve settings/calibration?
@@ -33,6 +34,15 @@
   [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-20: **Schliere S** in eurorack-mi-sgnir (`1904959`, `81fe986`):
+  `rings/dsp/schliere.{h,cc}` — one class with the variant switches S/O/Z/W/A, `SoftClip`
+  knees, CVs per block (ramped), no dead zone, plus spread (POSITION, hold zones at mono /
+  classic / chain end), excite (STRUM jack only; impulse or noise burst), dry/wet steps.
+  Host tests `rings/test/schliere_test.cc` 43/43; equivalence vs. the OWL reference
+  `tests/schliere/` 32/32 (linear range ≤ 2.4e-6) [measured, host]. Integration:
+  `CvScaler::ReadSchliere`, third audio branch in `FillBuffer`, third bank on the right long
+  press, LEDs, settings in the former reserved bytes (zero defaults, no marker bump), DWT peak
+  cycle counter. Build 97 056 B. Not flashed.
 - 2026-11-20: **Frequency knob alt** in eurorack-mi-sgnir (`68906da`): while locked, the
   FREQUENCY knob snaps to whole octaves of the locked pitch,
   `offset = 12 * round((pot_transpose - locked_transpose) / 12)` with ±0.1 octave hysteresis —
