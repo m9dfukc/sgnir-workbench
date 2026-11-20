@@ -13,8 +13,6 @@
   RESET/SYSBOOT buttons): read-only flash dump as the test.
 
 ### Firmware work (in `firmware/eurorack-mi-sgnir`)
-- Port the firmware-WAV encoder (`stm_audio_bootloader/qpsk/encoder.py`, Python 2) to
-  Python 3 as a uv tool in this workbench; verify against an official Rings release WAV.
 - Port **frequency locking** from the lylepmills master diff (~150 lines / 7 files, drop the
   MiniElements() guard), then **frequency knob alt** (~10 lines). Chord tables later, optional.
 - Implement **Schliere** (variant S first, one class with variant switches; ANLEITUNG.md 4–5):
@@ -24,10 +22,9 @@
   both impulse and noise-burst flavors, pick by ear on hardware), left button = dry/wet toggle.
 
 ### Before the first flash
-- Download and archive the official Rings firmware WAV (`backup/`).
-- Clarify [open]: does a firmware update preserve settings/calibration? How does
-  `rings/makefile` produce the update WAV?
-- Prove the audio bootloader procedure once with the stock firmware.
+- Clarify [open]: does a firmware update preserve settings/calibration?
+- Prove the audio bootloader procedure once with the stock firmware
+  (official `backup/rings_1.1.wav` is the known-good rollback).
 
 ### Port details ([open] items from ANLEITUNG.md)
 - Rings input/output voltage ranges; DC coupling of the input.
@@ -35,6 +32,12 @@
 - Settings `State` padding: verify it is zeroed in stock-firmware saves.
 
 ## Done
+- 2026-11-20: **WAV encoder ported to Python 3** (`tools/`, uv project `sgnir-tools`:
+  `qpsk-encode` + verification decoder `qpsk-decode`) and **verified against the official
+  Rings 1.1 WAV [measured]**: payload extracted with 0 CRC failures, re-encode structurally
+  identical (2015 encoder used 2.5 s sector pause vs. today's 3.5 s), samples within ±1 LSB
+  (numpy/libm rounding). Official WAV + extracted bin archived in `backup/`
+  (`rings_1.1.wav` sha256 5a013ee5…, `rings_1.1.bin` sha256 bfdff834…). Details: `tools/README.md`.
 - 2026-11-20: **Smear→Rings mapping decided** (user, via `docs/smear-mapping-proposal.md`):
   POSITION = Spread, STRUM = Excite impulse (flavor by ear on hardware, both implemented),
   left button = dry/wet toggle. Workbench published as `m9dfukc/sgnir-workbench` (public, MIT).
