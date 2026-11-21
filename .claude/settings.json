@@ -20,7 +20,8 @@
       "Skill(grill-me)",
       "Skill(grilling)",
       "Skill(handoff)",
-      "Skill(research)"
+      "Skill(research)",
+      "Skill(hardware-build)"
     ],
     "ask": [
       "Bash(git push*)",
@@ -28,6 +29,8 @@
       "Bash(gh release create*)",
       "Bash(afplay *)",
       "Bash(openocd *)",
+      "Bash(pyocd *)",
+      "Bash(stm32flash *)",
       "Bash(make *upload*)",
       "Bash(make *erase*)"
     ]

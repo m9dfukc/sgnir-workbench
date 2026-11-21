@@ -21,16 +21,18 @@
   (`kSchliereCvLpCoefficient`, now 0.1 like Rings); LED PWM whine check (AC/DC lesson D66).
 - Further CPU headroom if needed (sound-neutral): smooth only the active taps, per-block
   excite/spread/mix where nothing moves; asm stage loop would save ≈ 5 % at most.
+- Fix the stale comments in `rings/diagnostics.h` [code: `rings/ui.cc`]: with
+  `SCHLIERE_CPU_METER` the buttons are the release ones (only LED 1 changes); with
+  `SCHLIERE_BENCHMARK` left short toggles base-load-only, there is no prefetch toggle and no
+  right-button cycle.
 - Schliere variants O/A on the right button (switches exist in `Schliere::Init`), after the
   excite flavor is decided.
 
-### Before the first flash
-- Clarify [open]: does a firmware update preserve settings/calibration? [code]: yes (settings in
-  flash sector 1, bootloader erases from sector 2). Confirm with a before/after check (model,
-  polyphony, V/OCT 1 V/3 V octave test) on the next update.
-- ~~Prove the audio bootloader procedure once with the stock firmware~~ Done 2026-11-20
-  [measured]: `backup/rings_1.1.wav` flashed (second attempt; first too quiet), then several
-  sgnir builds.
+### On the next flash
+- Confirm that a firmware update preserves settings/calibration. [code]: yes (settings in
+  flash sector 1, bootloader erases from sector 2). Before/after check: model, polyphony,
+  V/OCT 1 V/3 V octave test. Then upgrade the marker in CLAUDE.md and sgnir
+  `docs/FLASHING.md` ("not yet confirmed on hardware").
 
 ### Port details ([open] items from ANLEITUNG.md)
 - Rings input/output voltage ranges; DC coupling of the input.
@@ -40,6 +42,20 @@
   [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-21: **Project rules restructured:** `hardware-build` skill with a build script
+  (`.claude/skills/hardware-build/`; run on `ec4a7aa` it reproduces rc4's `rings.bin` and WAV
+  byte for byte [measured, SHA-256]), path-scoped `.claude/rules/firmware.md`, CLAUDE.md
+  status trimmed to the current state, flash-capable commands on `ask` in the project settings.
+- 2026-11-20: **Release `v0.1.0`** of eurorack-mi-sgnir (tag on `ec4a7aa`,
+  https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.1.0). Fixes on the way:
+  `bbff5c9` (GCC `-Wcomment` in the host test), `e832c6b` (touch the checked-in resources: a
+  fresh clone made `make` regenerate them with the Python 2 compiler), `ec4a7aa` (ELF/map as a
+  workflow artifact). The CI (Linux) binary differs from the local macOS build only in the
+  placement of libm constant tables; all 190 functions have identical code [measured:
+  normalized disassembly of both ELFs]. `rc4` on the module is this code.
+- 2026-11-20: **Audio-bootloader flashing proven** [measured]: official 1.1
+  (`backup/rings_1.1.wav`; second attempt, the first was too quiet), then several sgnir
+  builds. Log: `firmware/flashlog/2026-11-20-stock-rings-1.1/` (local).
 - 2026-11-20: **Schliere on the module, CPU** [measured, LED benchmark builds diag1–6, logs in
   `firmware/flashlog/` (local)]: first build 105 % peak → overload (crackle, starved UI and
   SysTick: long press took 10 s). Fixes: flash prefetch at boot (−10 %), store only tapped

@@ -30,9 +30,10 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
   be ordered for JP1. Second recovery path with zero purchases: JP2 is a plain 2.54 mm 1x6
   header [code: `rings_v30.brd`, package `1X06`] → ROM serial bootloader via any 3.3 V UART +
   RESET/SYSBOOT buttons (research: `docs/research/notes/stlink-options-2026-11-20.md`).
-- V/OCT is calibrated in the stock firmware; calibration data lives in flash settings.
-  Whether a firmware update preserves calibration/settings is **[open]** — clarify before the
-  first flash.
+- V/OCT is calibrated in the stock firmware; calibration data lives in flash settings
+  (sector 1). Audio-bootloader updates keep it [code: the bootloader erases from sector 2
+  on]; the before/after check on the module is still **[open]** (`TODO.md`). No calibration
+  backup exists yet (needs SWD or the serial bootloader).
 
 ## Decisions (user, 2026-11-20)
 
@@ -113,17 +114,23 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 
 ## Safety rules for the hardware
 
-- **Never flash without the user's explicit approval.** There is only one Rings.
-- Before the first flash: the official Rings firmware WAV is downloaded and archived, and the
-  audio bootloader update procedure has been proven once with the stock firmware.
-- Clarify first [open]: does a firmware update erase settings/calibration? If reachable, back up
-  calibration before experiments.
-- Build the **stock firmware first** and keep the artifact before changing anything. Every
-  toolchain adaptation is its own commit.
-- One log folder per flash (date, build SHA, procedure, result) under `firmware/flashlog/`.
+- **Never flash without the user's explicit approval.** There is only one Rings. **The user
+  flashes himself** (he plays the WAV into the module); Claude builds and documents the image
+  and never plays audio into the module or drives a programmer.
+- Way back: `backup/rings_1.1.wav` (official firmware 1.1). The audio-bootloader procedure is
+  proven with it and with sgnir builds [measured, 2026-11-20]; the SWD and serial recovery
+  paths are not proven yet (`TODO.md`).
+- Calibration: see "Device". If reachable (SWD/serial), back it up before experiments that
+  touch the settings layout.
+- Images for the module are made with the **`hardware-build` skill**: every build gets a
+  record under `firmware/builds/`, every flash session a log under `firmware/flashlog/` (one
+  folder per day and base commit, one section per flashed build: procedure, result, readings).
+- The stock build (`firmware/builds/rings-stock-f4cfa769/`) stays as the toolchain reference.
+  Every toolchain adaptation is its own commit.
 - Host tests before hardware: the 65 tests in `reference/schliere-owl/` are the port reference —
   the Rings port must produce the same numbers for the same input (except for the documented
-  tanh approximation, `ANLEITUNG.md` section 4.3).
+  tanh approximation, `ANLEITUNG.md` section 4.3). The port's own tests:
+  `rings/test/schliere_test.cc` in the firmware repo and `tests/schliere/` (equivalence) here.
 
 ## Files
 
@@ -137,7 +144,11 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 | `reference/schliere-owl/` | The port package from acdc-workbench (German, imported as-is): OWL sources of all six Schliere variants, `ANLEITUNG.md` (the port guide — read it before touching DSP), host tests. Do not edit; the port adapts *copies* in the firmware repo |
 | `reference/acdc-workbench-CLAUDE.md` | Snapshot of the origin project's CLAUDE.md, for "what did we do there" lookups |
 | `firmware/eurorack-mi-sgnir/` | Submodule: the firmware repo (https://github.com/m9dfukc/eurorack-mi-sgnir, fetch https, push ssh). Build docs in its README |
-| `firmware/builds/`, `firmware/flashlog/` | Build artifacts and flash logs, local only (gitignored). `rings-stock-f4cfa769/` = verified stock build |
+| `firmware/builds/`, `firmware/flashlog/` | Build records and flash logs, local only (gitignored). `rings-stock-f4cfa769/` = verified stock build |
+| `tools/` | `sgnir-tools` (uv project): `qpsk-encode` / `qpsk-decode` for the audio-bootloader WAV, verified against the official 1.1 WAV |
+| `tests/schliere/` | Equivalence test: Rings port vs. the OWL reference |
+| `.claude/rules/firmware.md` | Firmware rules (build gotchas, CPU budget, settings layout, release flow). Loads by itself when files under `firmware/eurorack-mi-sgnir/`, `tests/schliere/` or `tools/src/` are read or edited |
+| `.claude/skills/hardware-build/` | Skill + build script for images that go onto the module |
 | `docs/handoffs/` | Session handoffs — **local only, gitignored, never commit**. Working notes that go stale fast; the newest file is the current one, never delete. CLAUDE.md and TODO.md must not reference individual handoff files — anything durable belongs in TODO.md, CLAUDE.md, or the docs |
 | `backup/` | Device backups (firmware WAVs, calibration) — local only, never overwrite |
 | `_tmp/` | User's scratch space. Ignored by git, never delete |
@@ -156,48 +167,42 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
   `UV_CACHE_DIR=.uv-cache uv run …`.
 - Foreign sources as **tarballs from codeload.github.com** (sandboxed `git clone` of external
   repos fails on `.git` writes), each into its own fresh directory.
-- Git writes (`.git/`) are blocked by the sandbox and need the exception.
-  **Commit and push only after user approval.** `gh` always with explicit `--repo m9dfukc/…`.
+- `git` and `gh` run outside the sandbox (`excludedCommands` in `.claude/settings.json`):
+  inside it `.git/` writes are blocked and `gh`/GitHub API calls fail TLS through the proxy.
+  **Commit and push only after the user's explicit approval that names the action** ("ja,
+  committen und pushen"); an "ok" to something else does not count. `gh` always with explicit
+  `--repo m9dfukc/…`.
 - Arm toolchain: **Arm GNU 12.2.Rel1** at `/Applications/ArmGNUToolchain/12.2.rel1/` (from the
-  acdc project). The original Rings build chain is gcc-4.8 era; adaptations are expected
-  [hypothesis] and must be committed individually.
+  acdc project; `TOOLCHAIN_PATH` is its `arm-none-eabi/` folder). The gcc-4.8-era build chain
+  needs only a `-std=gnu++11` flag override, no source changes [measured]; CI uses the same
+  toolchain version on Linux.
 - Before any commit: `git status --short` must show no binaries, WAVs, or `backup/` files.
   Nothing private beyond the username.
 - Tool CLIs: English help/console texts, reproducible (arguments, no hard-coded paths).
 
-## Status (2026-11-20)
+## Status (2026-11-21)
 
-- Workbench set up: reference package verified (all 65 host tests pass), fork and ST-Link
-  research done (see notes folder), project settings in `.claude/settings.json`.
-- **`eurorack-mi-sgnir` created and pushed** (public, MIT): pristine upstream snapshot
-  (`d030009`) + meta commit (`1d6bea5`), embedded as submodule `firmware/eurorack-mi-sgnir`.
-- **Stock firmware build reproduced [measured]** with Arm GNU 12.2 and the `gnu++11` flag
-  override, zero source changes: `rings.bin` 84 016 bytes, artifact + SHA in
-  `firmware/builds/rings-stock-f4cfa769/`. Not yet flashed to hardware.
-- **Frequency locking committed** in eurorack-mi-sgnir (`07283e3`, `ebb93b9`, docs `60df4f6`),
-  builds with Arm GNU 12.2 (84 880 B). Not flashed. User-facing controls: sgnir README.
-- **Frequency knob alt committed** (`68906da`, octave snapping), build 85 104 B. Not flashed.
-- **Schliere S committed** (`1904959` DSP + tests, `81fe986` integration): `rings/dsp/schliere.*`, host tests
-  43/43, equivalence vs. the OWL reference 32/32 (`tests/schliere/`), integrated as third bank;
-  firmware builds (97 056 B). CPU [hypothesis]: ≈ 25 cycles/stage → ≈ 55–60 % of the block
-  budget; measure on hardware via `fill_buffer_cycles_peak` (DWT). Not flashed.
-- **On the module (2026-11-20):** audio-bootloader flashing proven (stock 1.1, then sgnir
-  builds; first attempt failed when too quiet). First sgnir Schliere build overloaded the CPU
-  (105 % peak); after measurement-driven optimizations (flash prefetch, chain/tap code) 81 % at
-  48 kHz [measured, LED benchmark]; RAM execution measured 18 % slower. Details:
-  `firmware/flashlog/` (local) and the sgnir README "Profiling". Committed in sgnir as
-  `2fa5fe3` (DSP speed-up), `41db973` (prefetch, overload guard, controls), `7738d7d` (release
-  workflow: v* tag -> GitHub Actions builds, encodes the WAV, publishes a release with
-  docs/FLASHING.md); fixes `bbff5c9` (GCC -Wcomment in the host test), `e832c6b` (touch the
-  checked-in resources: a fresh clone made make regenerate them with the Python 2 compiler),
-  `ec4a7aa` (ELF/map artifact). **Release `v0.1.0` published** (tag on `ec4a7aa`):
-  https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.1.0. The CI (Linux) binary
-  differs from the local macOS build only in the placement of libm constant tables; all 190
-  functions have identical code [measured: normalized disassembly of both ELFs].
-- Next: listening/worst-case tests on the module, level adjustment, excite level by ear.
+Current state only; history lives in `TODO.md` ("Done"), the sgnir git log and
+`firmware/flashlog/` (local).
 
-## Skills (project-local, `.claude/skills/`)
+- **Released:** sgnir `v0.1.0` (tag on `ec4a7aa`): frequency locking, frequency knob alt
+  (octave snapping), Schliere S as third bank.
+  https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.1.0
+- **On the module:** `rc4` (`firmware/builds/sgnir-81fe986-rc4/`), which is the code of
+  `v0.1.0` [measured: a local build of `ec4a7aa` gives the same `rings.bin` SHA-256 as rc4;
+  the CI binary differs only in the placement of libm constant tables].
+- **Measured on the module** (peaks, knobs at noon): Schliere 81 % of the block budget at
+  48 kHz, 89 % with the 96 kHz feedback path; grounded models 43 %. Worst case [open].
+- **Not proven yet:** calibration before/after check on an update; SWD and serial recovery
+  paths (hardware prep in `TODO.md`).
+- **Next:** listening/worst-case tests on the module, level adjustment, excite level by ear.
 
-From `mattpocock/skills` @ `5863806` (2026-11-12): `grill-me`/`grilling` (stress-test a plan in
-question rounds — use before firmware steps or design decisions), `handoff` (condense a session),
-`research` (question → Markdown report, store in `docs/research/notes/`).
+## Skills and rules (project-local, `.claude/`)
+
+- `hardware-build` (own): build an image for the module with a build record, hand it to the
+  user, write the flash log from his report. Use it for every build that is meant to be
+  flashed.
+- `.claude/rules/firmware.md` (own): see "Files".
+- From `mattpocock/skills` @ `5863806` (2026-11-12): `grill-me`/`grilling` (stress-test a plan
+  in question rounds — use before firmware steps or design decisions), `handoff` (condense a
+  session), `research` (question → Markdown report, store in `docs/research/notes/`).
