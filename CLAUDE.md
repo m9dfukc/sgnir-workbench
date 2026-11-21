@@ -187,11 +187,13 @@ Current state only; history lives in `TODO.md` ("Done"), the sgnir git log and
 - **Released:** sgnir `v0.1.0` (tag on `ec4a7aa`): frequency locking, frequency knob alt
   (octave snapping), Schliere S as third bank.
   https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.1.0
-- **On the module:** `rc4` (`firmware/builds/sgnir-81fe986-rc4/`), which is the code of
-  `v0.1.0` [measured: a local build of `ec4a7aa` gives the same `rings.bin` SHA-256 as rc4;
-  the CI binary differs only in the placement of libm constant tables].
-- **Measured on the module** (peaks, knobs at noon): Schliere 81 % of the block budget at
-  48 kHz, 89 % with the 96 kHz feedback path; grounded models 43 %. Worst case [open].
+- **On the module:** `diag7` (`firmware/builds/sgnir-409ab6a-diag7/`, benchmark build: LEDs
+  blink the load, Schliere audio dry). Way back to a release: `rc4` = code of `v0.1.0`.
+- **Committed, not released:** sgnir `a922267` (Schliere CPU steps 1–4, one-vfma chain);
+  release candidate `rc5` (`firmware/builds/sgnir-409ab6a-rc5/`, same code) built, not flashed.
+- **Measured on the module** (diag7, peaks): Schliere 59 % of the block budget at 48 kHz,
+  69 % with the 96 kHz feedback path (v0.1.0: 81 / 89 %); base 13 %; grounded models 71–84 %
+  depending on the model. Worst case [open].
 - **Not proven yet:** calibration before/after check on an update; SWD and serial recovery
   paths (hardware prep in `TODO.md`).
 - **Next:** listening/worst-case tests on the module, level adjustment, excite level by ear.

@@ -19,12 +19,15 @@
   levels → adjust `kOutKnee`/`kLoopKnee` (ANLEITUNG 4.4); excite level (`kExciteLevel`,
   [hypothesis] 0.5) and flavor by ear; CV smoothing for tap/feedback
   (`kSchliereCvLpCoefficient`, now 0.1 like Rings); LED PWM whine check (AC/DC lesson D66).
-- Further CPU headroom if needed (sound-neutral): smooth only the active taps, per-block
-  excite/spread/mix where nothing moves; asm stage loop would save ≈ 5 % at most.
-- Fix the stale comments in `rings/diagnostics.h` [code: `rings/ui.cc`]: with
-  `SCHLIERE_CPU_METER` the buttons are the release ones (only LED 1 changes); with
-  `SCHLIERE_BENCHMARK` left short toggles base-load-only, there is no prefetch toggle and no
-  right-button cycle.
+- Flash `rc5` (= sgnir `a922267`) for a listening check; push sgnir + workbench only after the
+  user's explicit approval.
+- Longer chain at 48 kHz (user idea, 2026-11-21, after the AC/DC variant SchliereL with 160
+  stages): ≈ 0.56 % per extra stage [hypothesis, from diag7] → 91 stages ≈ 76 %, 98 ≈ 80 %;
+  without the 96 kHz path. Open design questions: stage count and tap layout, replace S or
+  add L, UI slot; benchmark build with two lengths first.
+- Grounded-model load: diag7 read 71 / 76 / 84 % for the three models (page/polyphony
+  unknown) against 43 % in diag6 ("user's setting", page unknown). Stock code, object-identical
+  in the release build; a like-for-like reading (known model + polyphony) is [open].
 - Schliere variants O/A on the right button (switches exist in `Schliere::Init`), after the
   excite flavor is decided.
 
@@ -42,6 +45,14 @@
   [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-21: **Schliere CPU steps 1–4** (sgnir `a922267`): no
+  automatic FMA, chain as straight-line code, tap loop over active taps only, per-block excite
+  check, inlined chain input/halfband, crossfade reciprocal; stale `diagnostics.h` comments
+  fixed. Benchmark `diag7` [measured, flash log 2026-11-21]: Schliere 61 → 59 % (48 kHz) and
+  72 → 69 % (96 kHz) for plain → one-vfma chain (v0.1.0: 81 / 89 %), base 13 %; the plain
+  chain is fetch-bound, so the vfma chain became the only one (user). Cycle model 71.9 →
+  48.1 %; output within 1.43e-6 of v0.1.0 on ARM; host tests 43/43, 32/32; release
+  build: 66 of 67 objects identical to `409ab6a` (only `schliere.o`), +3 424 B flash, +4 B RAM.
 - 2026-11-21: **Project rules restructured:** `hardware-build` skill with a build script
   (`.claude/skills/hardware-build/`; run on `ec4a7aa` it reproduces rc4's `rings.bin` and WAV
   byte for byte [measured, SHA-256]), path-scoped `.claude/rules/firmware.md`, CLAUDE.md

@@ -30,9 +30,10 @@ get wrong. Images for the module are made with the `hardware-build` skill.
 ## CPU budget
 
 - `FillBuffer()` has **84 000 cycles per block** (24 samples at 48 kHz, 168 MHz)
-  [code: `kBlockBudgetCycles`]. Peaks with all knobs at noon: grounded models 43 %, Schliere
-  81 % (48 kHz) / 89 % (96 kHz feedback path), base load 13 % [measured, flash log
-  2026-11-20]. Worst-case settings are [open].
+  [code: `kBlockBudgetCycles`]. Peaks: Schliere 59 % (48 kHz) / 69 % (96 kHz feedback path)
+  since the CPU steps 1–4 (v0.1.0: 81 / 89 %), base load 13 %, grounded models 71–84 %
+  depending on the model [measured, diag7, flash log 2026-11-21]. Worst-case settings are
+  [open].
 - The audio DMA interrupt outranks SysTick and the main loop. Over budget, the UI starves:
   LEDs dim, a 3 s long press takes about 10 s, buttons stop working [measured]. The overload
   guard (leaves the Schliere bank after 0.2 s over budget) is the safety net; do not weaken it.
@@ -41,6 +42,11 @@ get wrong. Images for the module are made with the `hardware-build` skill.
   in `rings/diagnostics.h`) before it is called done.
 - Already tried: flash prefetch at boot saves about 10 % (keep); running the DSP from RAM is
   18 % slower on this MCU (do not retry) [measured].
+- The unrolled chain is fetch-bound: code size per stage counts, not only cycles. The stage
+  with one explicit `vfms` is 2.3 points slower in the cycle model but 2–3 points faster on
+  the module [measured, diag7]. Check denser variants on the module, not in the model alone.
+- Cycle model (`tools/cycles/`): good for relative comparisons; module/model ratio for
+  `Process` was 0.94 on v0.1.0 and ≈ 0.95–1.06 for the vfma chain [measured].
 
 ## Settings layout
 
