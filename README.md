@@ -1,6 +1,6 @@
-# eurorack-mi-rings
+# sgnir-workbench
 
-Workbench for **eurorack-mi-sgnir** — a slim custom firmware for the Mutable Instruments
+Workbench for **eurorack-mi-sgnir** (in `firmware/`) — my modified, slim custom firmware for the Mutable Instruments
 **Rings** Eurorack module (STM32F405). Mutable Instruments no longer exists; this project builds
 on the community-maintained sources.
 
