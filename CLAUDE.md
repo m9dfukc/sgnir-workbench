@@ -40,9 +40,8 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - **Two-level structure:** this directory is the workbench, public as
   **`m9dfukc/sgnir-workbench`** (user, 2026-11-20; remote `origin`, branch `main`, MIT).
   The firmware fork is a separate GitHub repo **`m9dfukc/eurorack-mi-sgnir`**, embedded
-  here as a git submodule under `firmware/` (once created). Mutable Instruments asked forks not
-  to reuse the original names — hence "sgnir"; folder names inside the repo (`rings/`, …) stay
-  as upstream.
+  here as a git submodule under `firmware/` (once created). Folder names inside the repo
+  (`rings/`, …) stay as upstream.
 - **Slim fork = snapshot, not a GitHub fork:** new repo initialized from only the needed folders
   (`rings/`, `stmlib/`, `stm_audio_bootloader/`, build files) at a pinned upstream commit. The
   base commit hash is documented in the repo (README/BUILD_INFO); all own changes are clean

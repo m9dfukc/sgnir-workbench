@@ -18,7 +18,6 @@ on the community-maintained sources.
 The firmware itself lives in a separate slim repo,
 [`m9dfukc/eurorack-mi-sgnir`](https://github.com/m9dfukc/eurorack-mi-sgnir) (snapshot of
 the needed upstream folders at a pinned commit, vendored `stmlib`/`stm_audio_bootloader`, MIT).
-Named "sgnir" because Mutable Instruments asked forks not to reuse the original module names.
 
 ## Layout
 
