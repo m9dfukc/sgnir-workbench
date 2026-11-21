@@ -23,5 +23,7 @@ Result 2026-11-20 [measured, host]: all 32 cases ok.
   applies its dead zone at 96 kHz, the port upsamples the CV in knob units; the start-up
   transients differ (5.7e-4 over the whole run, 2.6e-7 after 0.5 s).
 
-The port's own host tests (43 cases, ported from the reference suite plus spread, dry/wet,
-excite and detent display) live in the firmware repo: `rings/test/schliere_test.cc`.
+The port's own host tests (68 cases, ported from the reference suite plus spread, dry/wet,
+excite, detent display, the L chain, the S ↔ L fade and the variant cycle) live in the
+firmware repo: `rings/test/schliere_test.cc`. This equivalence test covers S only; L has no
+OWL counterpart of the same length (SchliereL on the AC/DC has 160 stages).

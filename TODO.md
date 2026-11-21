@@ -14,34 +14,27 @@
 
 ### Firmware work (in `firmware/eurorack-mi-sgnir`)
 - Chord tables from lylepmills: later, optional.
-- **Schliere on hardware** [open]: worst-case load (tap between detents, loud input, high
-  feedback/resonance; measured so far only with knobs at noon: 81 % / 89 %); input/output
+- **Schliere on hardware** [open]: worst-case load with a signal at the input (tap between
+  detents, loud input, high feedback/resonance; measured so far with knobs at noon and no input:
+  S 62 / 71 %, L 82 %, diag9; tap between detents + high feedback without input = noon). Cycle
+  model: +6 points from noon to its worst scenario → L ≈ 88 % [hypothesis]; input/output
   levels → adjust `kOutKnee`/`kLoopKnee` (ANLEITUNG 4.4); excite level (`kExciteLevel`,
   [hypothesis] 0.5) and flavor by ear; CV smoothing for tap/feedback
   (`kSchliereCvLpCoefficient`, now 0.1 like Rings); LED PWM whine check (AC/DC lesson D66).
-- Flash `rc5` (= sgnir `a922267`) for a listening check; push sgnir + workbench only after the
-  user's explicit approval.
-- **Schliere L** (decided 2026-11-21, user): a second variant with a longer chain, 48 kHz
-  only, after the AC/DC variant SchliereL (160 stages there). Planned Schliere variants on
-  Rings are now only **S** (48 and 96 kHz, exists) and **L** (48 kHz).
-  - UI: right button held 1–3 s cycles S 48 kHz → S 96 kHz → L 48 kHz (replaces the 48/96
-    toggle); LED 2 green = S 48, yellow = S 96, red = L 48, in the order of the panel label
-    (user). This swaps today's S colors (now green = 96, yellow = 48): update the sgnir README
-    tables, `rings/ui.cc` (LED 2 and the 1–3 s preview) and the saved option
-    (`kSchliereOptionOversampled` → a three-state setting in the `'SGN1'` block) together.
-  - Load ≈ 0.56 % per extra stage [hypothesis, from diag7] → 91 stages ≈ 76 %, 98 ≈ 80 %
-    at 48 kHz; no 96 kHz path for L (it would be ≈ 90 %).
-  - Open: stage count (proposal 91 with taps R 1, 16 … 91 / L 1, 13 … 73, or 98 = 196 poles
-    with uneven spacing); benchmark build with two lengths before the final choice.
+- **Listening check of S and L** on the module (`v0.2.0` release WAV): L by
+  ear, the S ↔ L fade (click-free?), S 48 load re-check (diag9 read 62 % against 59 % in
+  diag7 for host-identical S code; cycle model +0.6 points) [open].
 - Grounded-model load: diag7 read 71 / 76 / 84 % for the three models (page/polyphony
   unknown) against 43 % in diag6 ("user's setting", page unknown). Stock code, object-identical
   in the release build; a like-for-like reading (known model + polyphony) is [open].
 
 ### On the next flash
 - Confirm that a firmware update preserves settings/calibration. [code]: yes (settings in
-  flash sector 1, bootloader erases from sector 2). Before/after check: model, polyphony,
-  V/OCT 1 V/3 V octave test. Then upgrade the marker in CLAUDE.md and sgnir
-  `docs/FLASHING.md` ("not yet confirmed on hardware").
+  flash sector 1, bootloader erases from sector 2). The sgnir block survived diag8 → diag9
+  (Schliere bank + variant L91 kept) [measured, flash log 2026-11-21]; still to check on a
+  non-benchmark build (benchmark builds hide them): model, polyphony, V/OCT 1 V/3 V octave
+  test. Then upgrade the marker in CLAUDE.md and sgnir `docs/FLASHING.md` ("not yet confirmed
+  on hardware").
 
 ### Port details ([open] items from ANLEITUNG.md)
 - Rings input/output voltage ranges; DC coupling of the input.
@@ -51,6 +44,20 @@
   [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-21: **Schliere L** (sgnir `c9aced5`): second variant with a 98-stage chain (196
+  poles; taps L every 13 stages 1 … 79, R every 16–17 stages 1 … 98, ≈ 4 : 5), 48 kHz only.
+  Right button held 1–3 s cycles S 48 → S 96 → L, LED 2 green / yellow / red (S colors
+  swapped); new option bit `kSchliereOptionLong` in the `'SGN1'` block (v0.1.0 falls back to
+  S 48). Chain change: wet fades out 5 ms, chain restarts silent, fades in 5 ms. Chain layouts
+  as templates of the sample loop; S bit-identical to `a922267` on the host and in the cycle
+  model. Stage states first in the class: diag8 had them behind the scalars, past the
+  ±1020-byte `vldr`/`vstr` range, and GCC reloaded a stack-held address per stage (S 64 %,
+  L91 88 %) [measured + disassembly]. Benchmark diag9 [measured, flash log 2026-11-21, knobs
+  at noon, no input]: S 62 / 71 %, L91 77 %, L98 82 %, base 13 % → **98 stages** (user, after
+  measuring; matches the Smear's two 98-pole sections in series). Host tests 68/68 (new: all
+  taps of both layouts vs. the textbook allpass, notches, group delay, stability, fade,
+  variant cycle and settings compatibility), equivalence 32/32. **Released as `v0.2.0`**
+  (user; CI run green, sgnir-v0.2.0.bin 108 432 B) before a hardware listening check of L.
 - 2026-11-21: **Schliere CPU steps 1–4** (sgnir `a922267`): no
   automatic FMA, chain as straight-line code, tap loop over active taps only, per-block excite
   check, inlined chain input/halfband, crossfade reciprocal; stale `diagnostics.h` comments

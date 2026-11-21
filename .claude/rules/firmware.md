@@ -30,10 +30,11 @@ get wrong. Images for the module are made with the `hardware-build` skill.
 ## CPU budget
 
 - `FillBuffer()` has **84 000 cycles per block** (24 samples at 48 kHz, 168 MHz)
-  [code: `kBlockBudgetCycles`]. Peaks: Schliere 59 % (48 kHz) / 69 % (96 kHz feedback path)
-  since the CPU steps 1–4 (v0.1.0: 81 / 89 %), base load 13 %, grounded models 71–84 %
-  depending on the model [measured, diag7, flash log 2026-11-21]. Worst-case settings are
-  [open].
+  [code: `kBlockBudgetCycles`]. Peaks with knobs at noon, no input: Schliere S 62 % (48 kHz)
+  / 71 % (96 kHz feedback path), L (98 stages) 82 %, base load 13 % [measured, diag9, flash
+  log 2026-11-21]; diag7 read 59 / 69 % for host-identical S code (v0.1.0: 81 / 89 %);
+  grounded models 71–84 % depending on the model [measured, diag7]. ≈ 0.5 points per chain
+  stage. Worst-case settings with a signal are [open].
 - The audio DMA interrupt outranks SysTick and the main loop. Over budget, the UI starves:
   LEDs dim, a 3 s long press takes about 10 s, buttons stop working [measured]. The overload
   guard (leaves the Schliere bank after 0.2 s over budget) is the safety net; do not weaken it.
@@ -42,6 +43,11 @@ get wrong. Images for the module are made with the `hardware-build` skill.
   in `rings/diagnostics.h`) before it is called done.
 - Already tried: flash prefetch at boot saves about 10 % (keep); running the DSP from RAM is
   18 % slower on this MCU (do not retry) [measured].
+- Keep `Schliere::state_` (the stage states) at the front of the class, within the ±1020-byte
+  offset range of `vldr`/`vstr` from `this`. diag8 had it behind the scalars: GCC precomputed
+  one address per stage, kept them on the stack and reloaded them in every stage (S 64 instead
+  of 59 %, L91 88 instead of ≈ 77 %) [measured + disassembly]. Check new members with the
+  disassembly: integer `ldr`/`add` between the `vfms` of the chain are the symptom.
 - The unrolled chain is fetch-bound: code size per stage counts, not only cycles. The stage
   with one explicit `vfms` is 2.3 points slower in the cycle model but 2–3 points faster on
   the module [measured, diag7]. Check denser variants on the module, not in the model alone.

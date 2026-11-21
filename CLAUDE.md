@@ -54,7 +54,9 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - **Port scope:** variant **S** first, implemented as one class with the variant switches from
   `ANLEITUNG.md` section 4.2. M (morph) is dropped. **Revised 2026-11-21 (user):** the only
   planned variants are S (48 and 96 kHz, exists) and **L** (longer chain, 48 kHz only, after
-  the AC/DC SchliereL); O, A, Z, W are not planned. Stage count of L still open (`TODO.md`).
+  the AC/DC SchliereL); O, A, Z, W are not planned. **L = 98 stages** (196 poles, taps L every
+  13 / R every 16–17 stages; user 2026-11-21, after the diag9 benchmark: 82 % vs. L91 77 %).
+  Switching S ↔ L: wet fades out, chain restarts silent, fades in (user).
 - **Fork base (decided 2026-11-20, after research):** upstream `pichenettes/eurorack` master
   (`f4cfa769`, rings tip `c5f910fb25`), stmlib `e3bd7c9c`, stm-audio-bootloader `1ec7d637` —
   NOT a lylepmills branch (his rings/ bundles unwanted features: Mini-Elements, 32 kHz, no CV
@@ -78,12 +80,10 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - **Schliere 48 kHz vs. 96 kHz (user, 2026-11-20, after measuring on the module):** default =
   variant S **without** its 96 kHz feedback path (81 % vs. 89 % peak load; audible difference,
   48 kHz judged fine). Right button in the Schliere bank (user, 2026-11-20): press = excite
-  (on button down); held 1–3 s = 48/96 kHz toggle on release (LED 2 green = 96 kHz, yellow =
-  48 kHz, preview after 1 s, saved); held 3 s = bank change as before. Excite flavor on the
-  left button long press (LED 1 shows it for 1.5 s). **Planned with L (user, 2026-11-21):**
-  held 1–3 s cycles S 48 → S 96 → L 48 kHz, LED 2 green / yellow / red in that order (panel
-  label order; swaps today's S colors). Not implemented yet; the sgnir README describes the
-  current firmware.
+  (on button down); held 3 s = bank change as before. Excite flavor on the left button long
+  press (LED 1 shows it for 1.5 s). **With L (user, 2026-11-21):** held 1–3 s cycles S 48 →
+  S 96 → L on release, LED 2 green / yellow / red in that order (panel label order; the S
+  colors were swapped against v0.1.0), preview after 1 s, saved.
 - **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
   (`stm_audio_bootloader/qpsk/encoder.py`) gets ported to Python 3 as a uv tool in this
   workbench, verified against official WAVs (user, Q13). SWD is fallback/rollback — **revised
@@ -189,19 +189,22 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
 Current state only; history lives in `TODO.md` ("Done"), the sgnir git log and
 `firmware/flashlog/` (local).
 
-- **Released:** sgnir `v0.1.0` (tag on `ec4a7aa`): frequency locking, frequency knob alt
-  (octave snapping), Schliere S as third bank.
-  https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.1.0
-- **On the module:** `diag7` (`firmware/builds/sgnir-409ab6a-diag7/`, benchmark build: LEDs
-  blink the load, Schliere audio dry). Way back to a release: `rc4` = code of `v0.1.0`.
-- **Committed, not released:** sgnir `a922267` (Schliere CPU steps 1–4, one-vfma chain);
-  release candidate `rc5` (`firmware/builds/sgnir-409ab6a-rc5/`, same code) built, not flashed.
-- **Measured on the module** (diag7, peaks): Schliere 59 % of the block budget at 48 kHz,
-  69 % with the 96 kHz feedback path (v0.1.0: 81 / 89 %); base 13 %; grounded models 71–84 %
-  depending on the model. Worst case [open].
+- **Released:** sgnir `v0.2.0` (tag on `c9aced5`, 2026-11-21): Schliere L (98 stages) next to
+  S, right-button cycle S 48 → S 96 → L, Schliere CPU steps 1–4. Released on the user's
+  request before a hardware listening check of L (only benchmark builds of this code ran on
+  the module). https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.2.0
+  Previous: `v0.1.0` (tag on `ec4a7aa`): frequency locking, frequency knob alt, Schliere S.
+- **On the module:** `diag9` (`firmware/builds/sgnir-a922267-diag9/`, benchmark build of the
+  L work: LEDs blink the load, Schliere audio dry). Way back to a release: `rc4` = code of
+  `v0.1.0`, or the `v0.2.0` release WAV.
+- **Measured on the module** (diag9, peaks, knobs at noon, no input): Schliere S 62 % of the
+  block budget at 48 kHz, 71 % with the 96 kHz feedback path, L 82 %; base 13 %; grounded
+  models 71–84 % depending on the model (diag7). Worst case with a signal [open].
 - **Not proven yet:** calibration before/after check on an update; SWD and serial recovery
   paths (hardware prep in `TODO.md`).
-- **Next:** listening/worst-case tests on the module, level adjustment, excite level by ear.
+- **Next:** flash the `v0.2.0` release WAV for a listening check (L, the S ↔ L fade, model/
+  polyphony/calibration kept), S 48 load re-check in a benchmark build, then worst-case
+  tests, level adjustment, excite level by ear.
 
 ## Skills and rules (project-local, `.claude/`)
 
