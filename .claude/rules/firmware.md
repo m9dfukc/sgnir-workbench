@@ -34,7 +34,10 @@ get wrong. Images for the module are made with the `hardware-build` skill.
   / 71 % (96 kHz feedback path), L (98 stages) 82 %, base load 13 % [measured, diag9, flash
   log 2026-11-21]; diag7 read 59 / 69 % for host-identical S code (v0.1.0: 81 / 89 %);
   grounded models 71–84 % depending on the model [measured, diag7]. ≈ 0.5 points per chain
-  stage. Worst-case settings with a signal are [open].
+  stage. With the excite flavors (diag10): idle S 61 / 71 %, L 82 %; a running ping adds
+  1–3 points (L 85 %) — 4–6 times the static estimate, probably atanf() + cosf() in the
+  trigger block [measured, diag10, flash log 2026-11-21-sgnir-c9aced5]. Worst-case settings
+  with a signal are [open].
 - The audio DMA interrupt outranks SysTick and the main loop. Over budget, the UI starves:
   LEDs dim, a 3 s long press takes about 10 s, buttons stop working [measured]. The overload
   guard (leaves the Schliere bank after 0.2 s over budget) is the safety net; do not weaken it.

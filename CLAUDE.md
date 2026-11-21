@@ -74,14 +74,18 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
   absolute 7-step switch, not a pickup mode.
 - **Schliere controls (user, 2026-11-20):** left button = dry/wet in steps 100 / 75 / 50 / 25 %
   wet (default 100 %; revised from five steps incl. 0 %), shown on LED 1 for 1.5 s as red /
-  yellow / green / off (no blinking). Full control/LED reference: sgnir README. Frequency = own continuous path over the whole knob (≈ 11 octaves) + calibrated
+  yellow / green / off (no blinking). **Swapped 2026-11-21 (user):** left short = excite
+  flavor (changed more often, LED 1 steady green / yellow / red), left held 3 s = dry/wet,
+  now shown as 4 / 3 / 2 / 1 yellow blinks (0.3 s on / 0.3 s off) = 100 / 75 / 50 / 25 % wet,
+  because both displays share LED 1 and its colors. Full control/LED reference: sgnir README. Frequency = own continuous path over the whole knob (≈ 11 octaves) + calibrated
   V/OCT + FM; frequency locking freezes the knob, alt function = octave snapping (≈ 9 % travel
-  per octave). Excite only on a trigger at the STRUM jack.
+  per octave). Excite on a trigger at the STRUM jack; with STRUM **and** IN both unpatched,
+  a V/OCT note change excites (Rings' strummer, no onset detection; user 2026-11-21).
 - **Schliere 48 kHz vs. 96 kHz (user, 2026-11-20, after measuring on the module):** default =
   variant S **without** its 96 kHz feedback path (81 % vs. 89 % peak load; audible difference,
   48 kHz judged fine). Right button in the Schliere bank (user, 2026-11-20): press = excite
   (on button down); held 3 s = bank change as before. Excite flavor on the left button long
-  press (LED 1 shows it for 1.5 s). **With L (user, 2026-11-21):** held 1–3 s cycles S 48 →
+  press (LED 1 shows it for 1.5 s; short press since 2026-11-21, see above). **With L (user, 2026-11-21):** held 1–3 s cycles S 48 →
   S 96 → L on release, LED 2 green / yellow / red in that order (panel label order; the S
   colors were swapped against v0.1.0), preview after 1 s, saved.
 - **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
@@ -96,7 +100,11 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
 - **Smear→Rings control mapping (decided 2026-11-20, user):** per
   `docs/smear-mapping-proposal.md` — POSITION = Spread (L/R tap distance, CCW mono → CW
   early/tail); STRUM = Excite impulse into the chain input; excite flavor (single-sample
-  impulse vs. filtered noise burst) implemented both ways, decided by ear on hardware; left
+  impulse vs. filtered noise burst) implemented both ways, decided by ear on hardware.
+  **Revised 2026-11-21 (user, after `docs/research/notes/excite-signals-2026-11-21.md`):**
+  three flavors impulse → mallet (f0-tracking Hann pulse, replaces the noise burst) → ping
+  (Hann-windowed sine at f0, ≈ 2 Q cycles), LED 1 green / yellow / red, with random
+  micro-variation per hit (level ±1 dB, polarity, width ±10 %); no per-trigger flavor cycling; left
   button = dry/wet toggle from the start.
 
 ## Language policy (user, 2026-11-20)
@@ -189,22 +197,26 @@ c++ -std=c++17 -O1 -Iowl/test -Iowl -Iowl/schliere -o "$TMPDIR/schliere_test" ow
 Current state only; history lives in `TODO.md` ("Done"), the sgnir git log and
 `firmware/flashlog/` (local).
 
-- **Released:** sgnir `v0.2.0` (tag on `c9aced5`, 2026-11-21): Schliere L (98 stages) next to
-  S, right-button cycle S 48 → S 96 → L, Schliere CPU steps 1–4. Released on the user's
-  request before a hardware listening check of L (only benchmark builds of this code ran on
-  the module). https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.2.0
-  Previous: `v0.1.0` (tag on `ec4a7aa`): frequency locking, frequency knob alt, Schliere S.
-- **On the module:** `diag9` (`firmware/builds/sgnir-a922267-diag9/`, benchmark build of the
-  L work: LEDs blink the load, Schliere audio dry). Way back to a release: `rc4` = code of
-  `v0.1.0`, or the `v0.2.0` release WAV.
-- **Measured on the module** (diag9, peaks, knobs at noon, no input): Schliere S 62 % of the
-  block budget at 48 kHz, 71 % with the 96 kHz feedback path, L 82 %; base 13 %; grounded
-  models 71–84 % depending on the model (diag7). Worst case with a signal [open].
-- **Not proven yet:** calibration before/after check on an update; SWD and serial recovery
-  paths (hardware prep in `TODO.md`).
-- **Next:** flash the `v0.2.0` release WAV for a listening check (L, the S ↔ L fade, model/
-  polyphony/calibration kept), S 48 load re-check in a benchmark build, then worst-case
-  tests, level adjustment, excite level by ear.
+- **Released:** sgnir `v0.3.0` (tag on `8dadfc6`, 2026-11-21): excite flavors impulse /
+  mallet / ping with micro-variation (noise burst dropped), STRUM via V/OCT note change with
+  STRUM and IN unpatched, left button swapped (short = flavor, held 3 s = dry/wet as yellow
+  blinks). Released on the user's request before rc7 (same code) ran on the module: the
+  excite code was heard (listen2) and measured (diag10), the button swap and the blink display
+  were not. https://github.com/m9dfukc/eurorack-mi-sgnir/releases/tag/v0.3.0
+  Previous: `v0.2.0` (tag on `c9aced5`): Schliere L, S/L cycle; `v0.1.0` (tag on `ec4a7aa`):
+  frequency locking, frequency knob alt, Schliere S.
+- **On the module:** `diag10` (`firmware/builds/sgnir-c9aced5-diag10/`, benchmark build of
+  the v0.3.0 excite code before the button swap; LEDs blink the load, Schliere audio dry).
+  Way back to a release: `rc7` = code of `v0.3.0`, `rc6` = code of `v0.2.0`, or the release
+  WAVs.
+- **Measured on the module** (diag10, peaks, knobs at noon, no input): Schliere S 61 % of the
+  block budget at 48 kHz, 71 % with the 96 kHz feedback path, L 82 %; a running ping +1–3
+  points (L 85 %); base 13 % (diag9); grounded models 71–84 % depending on the model (diag7).
+  Worst case with a signal [open].
+- **Not proven yet:** calibration before/after check on an update (V/OCT 1 V / 3 V test needs
+  an exact voltage source); SWD and serial recovery paths (hardware prep in `TODO.md`).
+- **Next:** flash the `v0.3.0` release WAV (or rc7): check the left button (short = flavor,
+  held = dry/wet blinks), then worst-case load tests, level adjustment.
 
 ## Skills and rules (project-local, `.claude/`)
 

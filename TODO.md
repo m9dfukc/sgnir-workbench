@@ -16,14 +16,14 @@
 - Chord tables from lylepmills: later, optional.
 - **Schliere on hardware** [open]: worst-case load with a signal at the input (tap between
   detents, loud input, high feedback/resonance; measured so far with knobs at noon and no input:
-  S 62 / 71 %, L 82 %, diag9; tap between detents + high feedback without input = noon). Cycle
+  S 61 / 71 %, L 82 %, a running ping +1–3, diag10; tap between detents + high feedback without input = noon). Cycle
   model: +6 points from noon to its worst scenario → L ≈ 88 % [hypothesis]; input/output
-  levels → adjust `kOutKnee`/`kLoopKnee` (ANLEITUNG 4.4); excite level (`kExciteLevel`,
-  [hypothesis] 0.5) and flavor by ear; CV smoothing for tap/feedback
+  levels → adjust `kOutKnee`/`kLoopKnee` (ANLEITUNG 4.4); excite level across FREQUENCY
+  (host: mallet ≈ +8 dB at 95 Hz vs. 632 Hz; not judged separately by ear); optional: cheaper
+  trig in `StartExcitation()` if the worst case gets tight; CV smoothing for tap/feedback
   (`kSchliereCvLpCoefficient`, now 0.1 like Rings); LED PWM whine check (AC/DC lesson D66).
-- **Listening check of S and L** on the module (`v0.2.0` release WAV): L by
-  ear, the S ↔ L fade (click-free?), S 48 load re-check (diag9 read 62 % against 59 % in
-  diag7 for host-identical S code; cycle model +0.6 points) [open].
+- **v0.3.0 on the module** [open]: left button (short = flavor, steady LED 1; held 3 s =
+  dry/wet, yellow blinks) — released before rc7 ran on the module.
 - Grounded-model load: diag7 read 71 / 76 / 84 % for the three models (page/polyphony
   unknown) against 43 % in diag6 ("user's setting", page unknown). Stock code, object-identical
   in the release build; a like-for-like reading (known model + polyphony) is [open].
@@ -31,9 +31,10 @@
 ### On the next flash
 - Confirm that a firmware update preserves settings/calibration. [code]: yes (settings in
   flash sector 1, bootloader erases from sector 2). The sgnir block survived diag8 → diag9
-  (Schliere bank + variant L91 kept) [measured, flash log 2026-11-21]; still to check on a
-  non-benchmark build (benchmark builds hide them): model, polyphony, V/OCT 1 V/3 V octave
-  test. Then upgrade the marker in CLAUDE.md and sgnir `docs/FLASHING.md` ("not yet confirmed
+  (Schliere bank + variant L91 kept), diag9 → listen2 (bank, L98 → L, 100 % wet kept)
+  [measured, flash logs 2026-11-21]; model/polyphony: the user believes they are kept (not
+  noted before, unverifiable); still open: V/OCT 1 V/3 V octave test (needs an exact voltage
+  source). Then upgrade the marker in CLAUDE.md and sgnir `docs/FLASHING.md` ("not yet confirmed
   on hardware").
 
 ### Port details ([open] items from ANLEITUNG.md)
@@ -44,6 +45,16 @@
   [code: `rings/settings.cc`]. Likely 0xFF rather than zero anyway [hypothesis].
 
 ## Done
+- 2026-11-21: **sgnir v0.3.0** (tag on `8dadfc6`): (1) STRUM via V/OCT note change with
+  STRUM and IN unpatched (`e90ca66`; the strummer did not run in the Schliere bank before).
+  (2) Excite flavors impulse / mallet / ping (`29242da`) after the research note
+  `docs/research/notes/excite-signals-2026-11-21.md`: the noise burst's energy lay mostly
+  above FREQUENCY, where the chain hardly delays; mallet = f0-tracking Hann pulse, ping =
+  Hann-windowed sine at f0, micro-variation per hit; rendered into a block buffer. listen2 by
+  ear: mallet and ping clearly more body and tonality, STRUM via V/OCT works, S ↔ L
+  click-free; diag10: idle load as v0.2.0, a running ping +1–3 points (L 85 %) [measured,
+  flash log 2026-11-21-sgnir-c9aced5]. (3) Left button swapped, dry/wet as yellow blinks
+  (`8dadfc6`). Host tests 73/73.
 - 2026-11-21: **Schliere L** (sgnir `c9aced5`): second variant with a 98-stage chain (196
   poles; taps L every 13 stages 1 … 79, R every 16–17 stages 1 … 98, ≈ 4 : 5), 48 kHz only.
   Right button held 1–3 s cycles S 48 → S 96 → L, LED 2 green / yellow / red (S colors
