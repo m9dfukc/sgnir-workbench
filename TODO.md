@@ -21,15 +21,21 @@
   (`kSchliereCvLpCoefficient`, now 0.1 like Rings); LED PWM whine check (AC/DC lesson D66).
 - Flash `rc5` (= sgnir `a922267`) for a listening check; push sgnir + workbench only after the
   user's explicit approval.
-- Longer chain at 48 kHz (user idea, 2026-11-21, after the AC/DC variant SchliereL with 160
-  stages): ≈ 0.56 % per extra stage [hypothesis, from diag7] → 91 stages ≈ 76 %, 98 ≈ 80 %;
-  without the 96 kHz path. Open design questions: stage count and tap layout, replace S or
-  add L, UI slot; benchmark build with two lengths first.
+- **Schliere L** (decided 2026-11-21, user): a second variant with a longer chain, 48 kHz
+  only, after the AC/DC variant SchliereL (160 stages there). Planned Schliere variants on
+  Rings are now only **S** (48 and 96 kHz, exists) and **L** (48 kHz).
+  - UI: right button held 1–3 s cycles S 48 kHz → S 96 kHz → L 48 kHz (replaces the 48/96
+    toggle); LED 2 green = S 48, yellow = S 96, red = L 48, in the order of the panel label
+    (user). This swaps today's S colors (now green = 96, yellow = 48): update the sgnir README
+    tables, `rings/ui.cc` (LED 2 and the 1–3 s preview) and the saved option
+    (`kSchliereOptionOversampled` → a three-state setting in the `'SGN1'` block) together.
+  - Load ≈ 0.56 % per extra stage [hypothesis, from diag7] → 91 stages ≈ 76 %, 98 ≈ 80 %
+    at 48 kHz; no 96 kHz path for L (it would be ≈ 90 %).
+  - Open: stage count (proposal 91 with taps R 1, 16 … 91 / L 1, 13 … 73, or 98 = 196 poles
+    with uneven spacing); benchmark build with two lengths before the final choice.
 - Grounded-model load: diag7 read 71 / 76 / 84 % for the three models (page/polyphony
   unknown) against 43 % in diag6 ("user's setting", page unknown). Stock code, object-identical
   in the release build; a like-for-like reading (known model + polyphony) is [open].
-- Schliere variants O/A on the right button (switches exist in `Schliere::Init`), after the
-  excite flavor is decided.
 
 ### On the next flash
 - Confirm that a firmware update preserves settings/calibration. [code]: yes (settings in

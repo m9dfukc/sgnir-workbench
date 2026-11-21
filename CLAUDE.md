@@ -52,7 +52,9 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
   sources as MIT (he is the author). README credits Mutable Instruments, lylepmills,
   acdc-workbench.
 - **Port scope:** variant **S** first, implemented as one class with the variant switches from
-  `ANLEITUNG.md` section 4.2, so A and O become pure configuration later. M (morph) is dropped.
+  `ANLEITUNG.md` section 4.2. M (morph) is dropped. **Revised 2026-11-21 (user):** the only
+  planned variants are S (48 and 96 kHz, exists) and **L** (longer chain, 48 kHz only, after
+  the AC/DC SchliereL); O, A, Z, W are not planned. Stage count of L still open (`TODO.md`).
 - **Fork base (decided 2026-11-20, after research):** upstream `pichenettes/eurorack` master
   (`f4cfa769`, rings tip `c5f910fb25`), stmlib `e3bd7c9c`, stm-audio-bootloader `1ec7d637` —
   NOT a lylepmills branch (his rings/ bundles unwanted features: Mini-Elements, 32 kHz, no CV
@@ -78,7 +80,10 @@ Inspiration for Schliere is the Smoothie Audio **Smear** module
   48 kHz judged fine). Right button in the Schliere bank (user, 2026-11-20): press = excite
   (on button down); held 1–3 s = 48/96 kHz toggle on release (LED 2 green = 96 kHz, yellow =
   48 kHz, preview after 1 s, saved); held 3 s = bank change as before. Excite flavor on the
-  left button long press (LED 1 shows it for 1.5 s).
+  left button long press (LED 1 shows it for 1.5 s). **Planned with L (user, 2026-11-21):**
+  held 1–3 s cycles S 48 → S 96 → L 48 kHz, LED 2 green / yellow / red in that order (panel
+  label order; swaps today's S colors). Not implemented yet; the sgnir README describes the
+  current firmware.
 - **Flash path:** audio bootloader is primary; the Python-2 WAV encoder
   (`stm_audio_bootloader/qpsk/encoder.py`) gets ported to Python 3 as a uv tool in this
   workbench, verified against official WAVs (user, Q13). SWD is fallback/rollback — **revised
