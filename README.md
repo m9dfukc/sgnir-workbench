@@ -15,7 +15,8 @@ on the community-maintained sources.
 3. Port of *frequency locking* and *frequency knob alt functionality* (optionally the new chord
    tables) from the [lylepmills fork](https://github.com/lylepmills/eurorack).
 
-The firmware itself will live in a separate slim repo, `m9dfukc/eurorack-mi-sgnir` (snapshot of
+The firmware itself lives in a separate slim repo,
+[`m9dfukc/eurorack-mi-sgnir`](https://github.com/m9dfukc/eurorack-mi-sgnir) (snapshot of
 the needed upstream folders at a pinned commit, vendored `stmlib`/`stm_audio_bootloader`, MIT).
 Named "sgnir" because Mutable Instruments asked forks not to reuse the original module names.
 
@@ -25,7 +26,11 @@ Named "sgnir" because Mutable Instruments asked forks not to reuse the original 
 - `docs/` — lexicon (DE↔EN), research notes with all sources
 - `reference/schliere-owl/` — the Schliere port package: OWL sources, port guide
   (`ANLEITUNG.md`, German), 65 host tests that define the port's expected output
-- `firmware/` — (planned) the eurorack-mi-sgnir submodule, builds, flash logs
+- `firmware/` — the [eurorack-mi-sgnir](https://github.com/m9dfukc/eurorack-mi-sgnir)
+  submodule (`firmware/eurorack-mi-sgnir/`); build records
+  and flash logs stay local
+- `tools/` — `sgnir-tools`: QPSK encoder/decoder for the audio-bootloader WAV
+- `tests/schliere/` — equivalence test: Rings port vs. the OWL reference
 
 ## Credits
 
